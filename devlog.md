@@ -9,3 +9,5 @@ I will probably start off by including most of the logic in the provided thread_
 2025-11-14 20:16
 
 This session, I'm going to implement some barebones logic for the customer and teller threads inside the thread_code program. I'm not planning to do much testing just yet; I just want to get a skeleton down so that I don't get lost in the weeds.
+
+I added some teller and customer functions. Within the functions, I simply modified the provided threadCode function that uses semaphores. I also added some global variables for things like, the total amount of money in the safe, etc. I'm not sure if this idea is going to work yet, but at least I have something down.
