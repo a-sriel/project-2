@@ -1,0 +1,7 @@
+2025-11-14 18:35
+
+For this project, I need to simulate a bank and the interactions between its tellers and customers. A customer can either withdraw or make a deposit. This project will involve waiting in line (queuing) so I will need to utilize semaphores to ensure mutual exclusion is enforced.
+
+I am going to use the provided semaphore class, as well as std::threads, to develop this program. I understand mutex, but am rusty on threads, so I have already done a couple hours of research trying to improve my understanding of how semaphores work. Synchronization is clear conceptually, but in practice, I am unsure how to implement it.
+
+I will probably start off by including most of the logic in the provided thread_code.cpp file, and build off of what has already been provided. I might later decide to separate the customer and teller into their own files later if necessary.
