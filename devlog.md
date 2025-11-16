@@ -27,3 +27,5 @@ I added some basic sleep logic to the customer threads, to simulate waiting. I'm
 I really need to get at least one part of the thread synchronization working. I've realized this bank simulation is similar to to the barbershop problem provided in the textbook, so I am going to try to build my semaphore logic based off of that.
 
 I temporarily threw all of my code into a new file titled test.cpp and am going to start from scratch. I need to look at everything with a pair of fresh eyes. I have set up a new customer() function, and created three customer threads in main.
+
+I've set up most of the basic semaphores and where they begin/release their respective mutex locks for the customer function. I might end up moving customer to its own class later depending on what kind of functionality this program requires. My next big step is to get the customer to communicate with the teller (i.e., giving it its id).
