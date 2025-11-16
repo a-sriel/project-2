@@ -2,6 +2,8 @@
 #include <thread>
 #include "semaphore.h"
 
+#include <cstdlib>
+
 int gCount = 0;
 Semaphore gLock(1);
 
@@ -11,6 +13,11 @@ Semaphore tLock(3);
 int cCount = 0;
 Semaphore custLock(50);
 
+int doorOccupancy = 0; // max 2
+
+int customerBalance = 0;
+int safeBalance = 999;
+
 void threadCode(int i) {
     gLock.wait();
     std::cout << "Thread " << i << " has count " << gCount << std::endl;
@@ -19,10 +26,11 @@ void threadCode(int i) {
 }
 
 void teller(int i) {
-    int randomInt;
+    std::thread::id _id;
     bool ready;
     tLock.wait();
-    std::cout << "Thread " << i << " has count " << tCount << std::endl;
+    std::cout << "Teller " << i << "[]:" << " ready to serve" << std::endl;
+    std::cout << "Teller " << i << "[]:" << " waiting for a customer" << std::endl;
     tCount++;
     tLock.signal();
 
@@ -36,7 +44,7 @@ void teller(int i) {
 
 void customer(int i) {
     custLock.wait();
-    std::cout << "Thread " << i << " has count " << cCount << std::endl;
+    std::cout << "Customer " << i << "[]:" << " wants to perform a <var> transaction"<< std::endl;
     cCount++;
     custLock.signal();
 
@@ -58,11 +66,6 @@ void customer(int i) {
     // wait for teller to finish
     // leave
 }
-
-int doorOccupancy = 0; // max 2
-
-int customerBalance = 0;
-int safeBalance = 999;
 
 bool withdraw(int amount) {
     if (amount > safeBalance) {
@@ -104,13 +107,13 @@ int main() {
     }
 
     // customer
-    std::thread customers[50];
+    std::thread customers[5];
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 5; i++) {
         customers[i] = std::thread(customer, i);
     }
 
-    for (int i = 0; i < 50; i++) {
+    for (int i = 0; i < 5; i++) {
         customers[i].join();
     }
 

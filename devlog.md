@@ -17,3 +17,4 @@ I had to install several packages to get this program to run using apt on Ubuntu
 2025-11-16 9:55
 
 The output is currently working. I want to start getting some of the synchronization down. I just need to understand how to implement the thread queueing, and once I have the logic down, it should be simple from there.
+
