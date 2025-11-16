@@ -35,3 +35,5 @@ I've set up most of the basic semaphores and where they begin/release their resp
 I noticed an issue in the customer function where it was waiting before making a decision; I therefore moved where it sleeps to come after when a decision is generated. Based on testing, the sync seems to be working (customers will wait based on their wait time, which is seeded by the current clock time, and then the one with the shortest wait time will enter first). Therefore, it looks like I just need to add functionality to make the customer leave, and then the big one will be having it actually interact with the teller.
 
 I have several shared parameters in my thread_code already, including the manager, the safe, the door occupancy, etc. but I may need to add more to ensure the bank simulation runs as intended.
+
+Some unexpected behavior I have encountered: threads for a respective function need to join after they have been created, or there will be synchronization errors when running the program. I have implemented a basic outline for the teller function now, and am attempting to develop a introduceSelf() function to allow a customer to pass its id along to a teller.
