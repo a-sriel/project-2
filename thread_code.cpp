@@ -29,9 +29,6 @@ Semaphore tellerService(3);
 void customer(int i) {
     // generate randomized customer action where 0 = deposit & 1 = withdraw
     customerAction = rand() % 2;
-    // generate customer wait time between 0 - 100 ms
-    customerWait = rand() % 101;
-    std::this_thread::sleep_for(std::chrono::milliseconds(customerWait));
 
     mutex.wait();
     if (customerAction == 0) {
@@ -39,8 +36,11 @@ void customer(int i) {
     } else {
         std::cout << "Customer " << i << " []:" << " wants to perform a withdrawal transaction " << std::endl;
     }
-    
 
+    // generate customer wait time between 0 - 100 ms
+    customerWait = rand() % 101;
+    std::this_thread::sleep_for(std::chrono::milliseconds(customerWait));
+    
     // customer enters door
     door.wait();
     std::cout << "Customer " << i << " []: going to bank." << std::endl;

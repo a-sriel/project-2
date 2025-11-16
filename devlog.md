@@ -29,3 +29,9 @@ I really need to get at least one part of the thread synchronization working. I'
 I temporarily threw all of my code into a new file titled test.cpp and am going to start from scratch. I need to look at everything with a pair of fresh eyes. I have set up a new customer() function, and created three customer threads in main.
 
 I've set up most of the basic semaphores and where they begin/release their respective mutex locks for the customer function. I might end up moving customer to its own class later depending on what kind of functionality this program requires. My next big step is to get the customer to communicate with the teller (i.e., giving it its id).
+
+2025-11-16 16:25
+
+I noticed an issue in the customer function where it was waiting before making a decision; I therefore moved where it sleeps to come after when a decision is generated. Based on testing, the sync seems to be working (customers will wait based on their wait time, which is seeded by the current clock time, and then the one with the shortest wait time will enter first). Therefore, it looks like I just need to add functionality to make the customer leave, and then the big one will be having it actually interact with the teller.
+
+I have several shared parameters in my thread_code already, including the manager, the safe, the door occupancy, etc. but I may need to add more to ensure the bank simulation runs as intended.
