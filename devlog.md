@@ -19,3 +19,5 @@ I had to install several packages to get this program to run using apt on Ubuntu
 The output is currently working. I want to start getting some of the synchronization down. I just need to understand how to implement the thread queueing, and once I have the logic down, it should be simple from there.
 
 I'm trying to implement some mutex logic now. It's difficult to understand how the customer and teller interacts through threads. I don't think we are supposed to use queues, and instead rely on semaphores, so I'm trying to figure out how to capture the logic.
+
+I added some basic sleep logic to the customer threads, to simulate waiting. I'm not sure if it works correctly or not. I also began creating separate files for the Teller and Customer programs - they have not been fully implemented yet. This session, I only have a bare bones version of the program down, but I'm happy with my progress so far.

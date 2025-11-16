@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <ctime>
 #include <random>
+#include <chrono>
 
 int gCount = 0;
 Semaphore gLock(1);
@@ -79,7 +80,8 @@ void customer(int i) {
 
     
     // generate wait from 0-100
-    int wait = rand() % 101;
+    int wait_time = rand() % 101;
+    std::this_thread::sleep_for(std::chrono::milliseconds(wait_time));
     if (doorOccupancy > 2) {
         // enter
     } else {
