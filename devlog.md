@@ -18,3 +18,4 @@ I had to install several packages to get this program to run using apt on Ubuntu
 
 The output is currently working. I want to start getting some of the synchronization down. I just need to understand how to implement the thread queueing, and once I have the logic down, it should be simple from there.
 
+I'm trying to implement some mutex logic now. It's difficult to understand how the customer and teller interacts through threads. I don't think we are supposed to use queues, and instead rely on semaphores, so I'm trying to figure out how to capture the logic.
