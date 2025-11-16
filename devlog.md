@@ -25,3 +25,5 @@ I added some basic sleep logic to the customer threads, to simulate waiting. I'm
 2025-11-16 14:16
 
 I really need to get at least one part of the thread synchronization working. I've realized this bank simulation is similar to to the barbershop problem provided in the textbook, so I am going to try to build my semaphore logic based off of that.
+
+I temporarily threw all of my code into a new file titled test.cpp and am going to start from scratch. I need to look at everything with a pair of fresh eyes. I have set up a new customer() function, and created three customer threads in main.
