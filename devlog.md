@@ -21,3 +21,7 @@ The output is currently working. I want to start getting some of the synchroniza
 I'm trying to implement some mutex logic now. It's difficult to understand how the customer and teller interacts through threads. I don't think we are supposed to use queues, and instead rely on semaphores, so I'm trying to figure out how to capture the logic.
 
 I added some basic sleep logic to the customer threads, to simulate waiting. I'm not sure if it works correctly or not. I also began creating separate files for the Teller and Customer programs - they have not been fully implemented yet. This session, I only have a bare bones version of the program down, but I'm happy with my progress so far.
+
+2025-11-16 14:16
+
+I really need to get at least one part of the thread synchronization working. I've realized this bank simulation is similar to to the barbershop problem provided in the textbook, so I am going to try to build my semaphore logic based off of that.
