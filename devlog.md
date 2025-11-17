@@ -37,3 +37,5 @@ I noticed an issue in the customer function where it was waiting before making a
 I have several shared parameters in my thread_code already, including the manager, the safe, the door occupancy, etc. but I may need to add more to ensure the bank simulation runs as intended.
 
 Some unexpected behavior I have encountered: threads for a respective function need to join after they have been created, or there will be synchronization errors when running the program. I have implemented a basic outline for the teller function now, and am attempting to develop a introduceSelf() function to allow a customer to pass its id along to a teller.
+
+I have successfully implemented my first interaction between (one of three) teller threads and the customer threads. I might scrap the introduceSelf() function because it seems unnecessary - it seems like most (all?) interactions in this program can be simulated using semaphores and global variables.
