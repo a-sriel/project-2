@@ -45,3 +45,5 @@ I have successfully implemented my first interaction between (one of three) tell
 I need to continue to work on the synchronization between teller() and customer(). I might be able to do this all in one program, but if it looks too messy, I will separate it into separate files.
 
 I need to make sure each teller leaves at the end of the simulation, and I also need to implement a method for customer to give its id to the teller that's serving it.
+
+I am refining my code. I am encountering some compile errors during testing. So far, I have added a lot of synchronization logic, and I think I mixed up some of the locks.
