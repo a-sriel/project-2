@@ -47,3 +47,7 @@ I need to continue to work on the synchronization between teller() and customer(
 I need to make sure each teller leaves at the end of the simulation, and I also need to implement a method for customer to give its id to the teller that's serving it.
 
 I am refining my code. I am encountering some compile errors during testing. So far, I have added a lot of synchronization logic, and I think I mixed up some of the locks.
+
+2025-11-16 21:52
+
+I have decided to change the ready tellers vector to a queue, so that I will be able to access both the front and back of the list without issue.

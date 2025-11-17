@@ -9,17 +9,15 @@
 #include <random>
 #include <chrono>
 #include <vector>
+#include <queue>
 
-Semaphore bankOpen(6);
-Semaphore mutex2(3);
+Semaphore bankOpen(0);
+
 int customerAction;
 int customerWait;
 
 Semaphore safe(2);  // 2 tellers can access safe at a time
-
 Semaphore door(2);  // 2 customers can enter at a time
-int doorCount = 0;
-
 Semaphore manager(1);   // 1 teller can interact with manager at a time;
                         // manager gives perms to access safe
 
@@ -29,13 +27,18 @@ int tellerCount = 0;
 
 Semaphore tellersAvailable(3);
 
-Semaphore customersLeft(3);
 
 Semaphore customerRequest(3);
 
 Semaphore mutex(30);
 
 Semaphore customerReady(3);
+int customersReady = 0;
+
+int readyTellersCount = 0;
+Semaphore tellersReady(0);
+std::queue<int> readyTellersQueue;
+Semaphore readyQueue(1);
 
 Semaphore tellers(3);
 Semaphore customers(3);
@@ -45,27 +48,39 @@ int unique_id = -1;
 std::vector<int> available_tellers;
 
 void teller(int i) {
-    tellers.wait();
+
     //int teller_id = rand();
     std::cout << "Teller " << i << " []: ready to serve" << std::endl;
     std::cout << "Teller " << i << " []: waiting for a customer" << std::endl;
 
+    tellersReady.wait();
     tellerCount++;
-    std::cout << "customers: " << customerCount << std::endl;
 
+    if (readyTellersCount == 3) {
+        bankOpen.signal();
+    }
+    
+    tellersReady.signal();
+
+    bankOpen.wait();
     bankOpen.signal();
-
-    available_tellers.push_back(0);
-    available_tellers.push_back(1);
-    available_tellers.push_back(2);
 
  //   while (tellerCount == 3 && customerCount > 0) {
    // }
     
   // std::cout << customerCount << std::endl;
     
-    while (customerCount > 0) {
+    while (true) {
         customerReady.wait();
+
+        if (customersReady <= 0) {
+            customerReady.signal();
+            break;
+        }
+
+        customersReady--;
+        customerReady.signal();
+
         manager.wait();
         std::cout << unique_id << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 25 + 6));
@@ -75,7 +90,7 @@ void teller(int i) {
 
     tellerCount--;
     std::cout << "Teller " << i << " []: leaving for the day" << std::endl;
-    tellers.signal();
+
 }
 
 void customer(int i) {
@@ -151,7 +166,7 @@ int main() {
     for (int i = 0; i < 3; i++) {
         customers[i] = std::thread(customer, i);
     }
-    
+
     for (int i = 0; i < 3; i++) {
         customers[i].join();
     }
