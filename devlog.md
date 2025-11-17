@@ -57,3 +57,5 @@ I incorporated synchronization arrays, rather than relying on functions, in orde
 For the customer thread, I moved the bankOpen logic to occur after the transaction type was decided; I think that misordering was causing the threads to stall in my earlier implementation.
 
 I defined the customer count to be 50, and teller count to be 3. I also finalized the customer function. I am still getting a synchronization error, I tried concatenating the integers passed through cout to strings but I'm not sure what's going on. I need to do some quick testing.
+
+There was a race condition due to the teller and customer counters implemented. I also included some extra signals by mistake which were removed.

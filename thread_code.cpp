@@ -10,21 +10,19 @@
 #include <chrono>
 #include <vector>
 #include <queue>
+#include <string>
 
 #define TELLERS_COUNT 3
 #define CUSTOMERS_COUNT 50
 
 Semaphore bankOpen(0);
 
+Semaphore outputMutex(1);
+
 Semaphore safe(2);  // 2 tellers can access safe at a time
 Semaphore door(2);  // 2 customers can enter at a time
 Semaphore manager(1);   // 1 teller can interact with manager at a time;
                         // manager gives perms to access safe
-
-int customerCount = 0;
-int tellerCount = 0;
-
-Semaphore tellersAvailable(TELLERS_COUNT);
 
 Semaphore customerReady(1);
 int customersReady = CUSTOMERS_COUNT;
@@ -34,7 +32,7 @@ Semaphore tellersReady(0);
 std::queue<int> readyTellersQueue;
 Semaphore readyQueue(1);
 
-std::vector<int> available_tellers;
+Semaphore readyMutex(1);
 
 // synchronization arrays
 Semaphore customerInteractsWithTeller[TELLERS_COUNT];
@@ -47,27 +45,34 @@ Semaphore customerLeft[TELLERS_COUNT];
 int customerToTeller[TELLERS_COUNT];
 int actionToTeller[TELLERS_COUNT];
 
+void threadsafePrint(const std::string& text) {
+    outputMutex.wait();
+    std::cout << text << std::endl;
+    outputMutex.signal();
+}
+
 void teller(int i) {
 
     //int teller_id = rand();
-    std::cout << "Teller " << i << " []: ready to serve" << std::endl;
+    customerInteractsWithTeller[i].initialize(0);
+    tellerPrompt[i].initialize(0);
+    giveTransaction[i].initialize(0);
+    completeTransaction[i].initialize(0);
+    customerLeft[i].initialize(0);
 
-    tellersReady.wait();
-    tellerCount++;
+    
 
-    if (readyTellersCount == 3) {
+    readyMutex.wait();
+    readyTellersCount++;
+
+    if (readyTellersCount == TELLERS_COUNT) {
         bankOpen.signal();
     }
     
-    tellersReady.signal();
+    readyMutex.signal();
 
     bankOpen.wait();
     bankOpen.signal();
-
- //   while (tellerCount == 3 && customerCount > 0) {
-   // }
-    
-  // std::cout << customerCount << std::endl;
     
     while (true) {
         customerReady.wait();
@@ -78,20 +83,23 @@ void teller(int i) {
         }
 
         customersReady--;
-        customerReady.signal();
 
+        // wait for customer
+        threadsafePrint( "Teller " + std::to_string(i) +" []: ready to serve" );
+        threadsafePrint( "Teller " +std::to_string(i)  +" []: waiting for a customer" );
+        
         readyQueue.wait();
         readyTellersQueue.push(i);
         readyQueue.signal();
-        tellersReady.signal();
 
-        // wait for customer
-        std::cout << "Teller " << std::to_string(i)  << " []: waiting for a customer" << std::endl;
+        tellersReady.signal();
+  
         customerInteractsWithTeller[i].wait();
+        customerReady.signal();
 
         int customerId = customerToTeller[i];
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: serving a customer" << std::endl;
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: asks for transaction" << std::endl;
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: serving a customer" );
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: asks for transaction" );
         tellerPrompt[i].signal();
 
         giveTransaction[i].wait();
@@ -99,44 +107,44 @@ void teller(int i) {
         std::string actionString = (customerAction == 1) ? "withdrawal" : "deposit";
 
         if (customerAction == 1) {
-            std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: handling withdrawal transaction" << std::endl;
-            std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: going to the manager" << std::endl;
+            threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: handling withdrawal transaction" );
+            threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: going to the manager" );
             // get manager permission
             manager.wait();
-            std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: getting manager's permission" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 25 + 6));
-            std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: got manager's permission" << std::endl;
+            threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: getting manager's permission" );
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 26 + 5));
+            threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: got manager's permission" );
             manager.signal();
         } else {
-            std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: handling deposit transaction" << std::endl;
+            threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: handling deposit transaction" );
         }
         
         // access safe
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: going to safe" << std::endl;
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: going to safe" );
         safe.wait();
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: enter safe" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 40 + 11));
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: leaving safe" << std::endl;
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: enter safe" );
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 41 + 10));
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: leaving safe" );
         safe.signal();
 
         // transaction fulfilled
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: finishes " << actionString << " transaction." << std::endl;
-        completeTransaction[i].signal();
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: finishes " +actionString +" transaction." );
+        
 
-        std::cout << "Teller " << std::to_string(i)  << "[Customer " << std::to_string(customerId) << "]: wait for customer to leave." << std::endl;
+        threadsafePrint( "Teller " +std::to_string(i)  +" [Customer " +std::to_string(customerId) +"]: wait for customer to leave." );
+        completeTransaction[i].signal();
         customerLeft[i].wait();
     }   
 
-    std::cout << "Teller " << std::to_string(i)  << " []: leaving for the day" << std::endl;
+    threadsafePrint( "Teller " +std::to_string(i)  +" []: leaving for the day" );
 
 }
 
 void customer(int i) {
     // generate randomized customer action where 0 = deposit & 1 = withdraw
-    customerCount++;
     int customerAction = rand() % 2;
     std::string actionString = (customerAction == 1) ? "withdrawal" : "deposit";
-    std::cout << "Customer " << std::to_string(i)  << " []: wants to perform a " << actionString << " transaction" << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: wants to perform a " +actionString +" transaction" );
 
     // generate customer wait time between 0 - 100 ms
     int customerWait = rand() % 101;
@@ -146,15 +154,15 @@ void customer(int i) {
     bankOpen.signal();
 
     // customer enters door
-    std::cout << "Customer " << std::to_string(i)  << " []: going to bank." << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: going to bank." );
     door.wait();
-    std::cout << "Customer " << std::to_string(i)  << " []: entering bank." << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: entering bank." );
     door.signal();
 
     // customer gets in line
-    std::cout << "Customer " << std::to_string(i)  << " []: getting in line." << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: getting in line." );
     tellersReady.wait();
-    std::cout << "Customer " << std::to_string(i)  << " []: selecting a teller." << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: selecting a teller." );
     
     readyQueue.wait();
     int tellerId = readyTellersQueue.front();
@@ -162,32 +170,32 @@ void customer(int i) {
     readyQueue.signal();
 
     // get a free teller
-    tellersAvailable.wait();
     // introduce self to teller (give id)
+    threadsafePrint( "Customer " +std::to_string(i) +" [Teller " +std::to_string(tellerId) +"]: selects teller" );
     customerToTeller[tellerId] = i;
-    std::cout << "Customer " << std::to_string(i) << " [Teller " << std::to_string(tellerId) << "]: selects teller" << std::endl;
-    std::cout << "Customer " << std::to_string(i)  << " [Teller " << std::to_string(tellerId) << "]: introduces itself" << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" [Teller " +std::to_string(tellerId) +"]: introduces itself" );
     customerInteractsWithTeller[tellerId].signal();
     
     // wait for teller to ask for transaction
-    tellerPrompt[tellerId].signal();
+    tellerPrompt[tellerId].wait();
 
     actionToTeller[tellerId] = customerAction;
-    std::cout << "Customer " << std::to_string(i)  << " [Teller " << std::to_string(tellerId) << "]: asks for " << actionString << " transaction" << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" [Teller " +std::to_string(tellerId) +"]: asks for " +actionString +" transaction" );
     giveTransaction[tellerId].signal();
 
     // complete transaction
     completeTransaction[tellerId].wait();
 
-    std::cout << "Customer " << std::to_string(i)  << " [" << available_tellers[0] << "]: leaves teller" << std::endl;
+    threadsafePrint( "Customer " +std::to_string(i)  +" [Teller " +std::to_string(tellerId) +"]: leaves teller" );
     customerLeft[tellerId].signal();
 
     // customer leaves door
-    //door.wait();
-    std::cout << "Customer " << std::to_string(i)  << " []: goes to door" << std::endl;
+    door.wait();
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: goes to door" );
     // customer leaves simulation
-    std::cout << "Customer " << std::to_string(i)  << " []: leaves the bank" << std::endl; 
-    //door.signal();
+    threadsafePrint( "Customer " +std::to_string(i)  +" []: leaves the bank" ); 
+    door.signal();
+
 }
 
 
@@ -216,7 +224,7 @@ int main() {
     }
 
     // all threads have completed; close bank
-    std::cout << "The bank closes for the day." << std::endl;
+    threadsafePrint( "The bank closes for the day." );
 
     return 0;
 }
