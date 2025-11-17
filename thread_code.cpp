@@ -48,12 +48,15 @@ int unique_id = -1;
 std::vector<int> available_tellers;
 
 // synchronization arrays
-Semaphore customerTeller[3];
+Semaphore customerInteractsWithTeller[3];
 
 Semaphore tellerPrompt[3];
 Semaphore giveTransaction[3];
 Semaphore completeTransaction[3];
 Semaphore customerLeft[3];
+
+int customerToTeller[3];
+int actionToTeller[3];
 
 void teller(int i) {
 
