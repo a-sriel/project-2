@@ -53,3 +53,7 @@ I am refining my code. I am encountering some compile errors during testing. So 
 I have decided to change the ready tellers vector to a queue, so that I will be able to access both the front and back of the list without issue.
 
 I incorporated synchronization arrays, rather than relying on functions, in order to ensure that the customers and tellers will be able to communicate. I also significantly cleaned up the teller function, and got the thread logic operational. All of the output for the teller thread should now be complete, I just have to fix up the customer thread and get that operational as well.
+
+For the customer thread, I moved the bankOpen logic to occur after the transaction type was decided; I think that misordering was causing the threads to stall in my earlier implementation.
+
+I defined the customer count to be 50, and teller count to be 3. I also finalized the customer function. I am still getting a synchronization error, I tried concatenating the integers passed through cout to strings but I'm not sure what's going on. I need to do some quick testing.
