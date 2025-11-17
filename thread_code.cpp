@@ -47,11 +47,18 @@ int unique_id = -1;
 
 std::vector<int> available_tellers;
 
+// synchronization arrays
+Semaphore customerTeller[3];
+
+Semaphore tellerPrompt[3];
+Semaphore giveTransaction[3];
+Semaphore completeTransaction[3];
+Semaphore customerLeft[3];
+
 void teller(int i) {
 
     //int teller_id = rand();
     std::cout << "Teller " << i << " []: ready to serve" << std::endl;
-    std::cout << "Teller " << i << " []: waiting for a customer" << std::endl;
 
     tellersReady.wait();
     tellerCount++;
@@ -81,6 +88,13 @@ void teller(int i) {
         customersReady--;
         customerReady.signal();
 
+        readyQueue.wait();
+        readyTellersQueue.push(i);
+        readyQueue.signal();
+        tellersReady.signal();
+
+        // wait for customer
+        std::cout << "Teller " << i << " []: waiting for a customer" << std::endl;
         manager.wait();
         std::cout << unique_id << std::endl;
         std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 25 + 6));
