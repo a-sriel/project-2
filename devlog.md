@@ -52,4 +52,4 @@ I am refining my code. I am encountering some compile errors during testing. So 
 
 I have decided to change the ready tellers vector to a queue, so that I will be able to access both the front and back of the list without issue.
 
-I incorporated synchronization arrays, rather than relying on functions, in order to ensure that the customers and tellers will be able to communicate.
+I incorporated synchronization arrays, rather than relying on functions, in order to ensure that the customers and tellers will be able to communicate. I also significantly cleaned up the teller function, and got the thread logic operational. All of the output for the teller thread should now be complete, I just have to fix up the customer thread and get that operational as well.

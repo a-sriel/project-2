@@ -98,14 +98,46 @@ void teller(int i) {
 
         // wait for customer
         std::cout << "Teller " << i << " []: waiting for a customer" << std::endl;
-        manager.wait();
-        std::cout << unique_id << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 25 + 6));
-        manager.signal();
+        customerInteractsWithTeller[i].wait();
+
+        int customerId = customerToTeller[i];
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: serving a customer" << std::endl;
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: asks for transaction" << std::endl;
+        tellerPrompt[i].signal();
+
+        giveTransaction[i].wait();
+        int customerAction = actionToTeller[i];
+        std::string actionString = (customerAction == 1) ? "withdrawal" : "deposit";
+
+        if (customerAction == 1) {
+            std::cout << "Teller " << i << "[Customer " << customerId << "]: handling withdrawal transaction" << std::endl;
+            std::cout << "Teller " << i << "[Customer " << customerId << "]: going to the manager" << std::endl;
+            // get manager permission
+            manager.wait();
+            std::cout << "Teller " << i << "[Customer " << customerId << "]: getting manager's permission" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 25 + 6));
+            std::cout << "Teller " << i << "[Customer " << customerId << "]: got manager's permission" << std::endl;
+            manager.signal();
+        } else {
+            std::cout << "Teller " << i << "[Customer " << customerId << "]: handling deposit transaction" << std::endl;
+        }
+        
+        // access safe
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: going to safe" << std::endl;
         safe.wait();
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: enter safe" << std::endl;
+        std::this_thread::sleep_for(std::chrono::milliseconds(rand() % 40 + 11));
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: leaving safe" << std::endl;
+        safe.signal();
+
+        // transaction fulfilled
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: finishes " << actionString << " transaction." << std::endl;
+        completeTransaction[i].signal();
+
+        std::cout << "Teller " << i << "[Customer " << customerId << "]: wait for customer to leave." << std::endl;
+        customerLeft[i].wait();
     }   
 
-    tellerCount--;
     std::cout << "Teller " << i << " []: leaving for the day" << std::endl;
 
 }
