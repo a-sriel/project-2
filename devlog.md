@@ -39,3 +39,9 @@ I have several shared parameters in my thread_code already, including the manage
 Some unexpected behavior I have encountered: threads for a respective function need to join after they have been created, or there will be synchronization errors when running the program. I have implemented a basic outline for the teller function now, and am attempting to develop a introduceSelf() function to allow a customer to pass its id along to a teller.
 
 I have successfully implemented my first interaction between (one of three) teller threads and the customer threads. I might scrap the introduceSelf() function because it seems unnecessary - it seems like most (all?) interactions in this program can be simulated using semaphores and global variables.
+
+2025-11-16 17:44
+
+I need to continue to work on the synchronization between teller() and customer(). I might be able to do this all in one program, but if it looks too messy, I will separate it into separate files.
+
+I need to make sure each teller leaves at the end of the simulation, and I also need to implement a method for customer to give its id to the teller that's serving it.
